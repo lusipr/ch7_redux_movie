@@ -8,7 +8,7 @@ export const MainContents = (props) => {
   const { results } = popularMovie;
 
   return (
-    <div className='flex justify-center'>
+    <div className='flex justify-center mt-8'>
       <div className='container block'>
         <div className="flex xl:items-center xl:flex-row flex-col justify-between xl:mb-14 mb-10">
           <h2 className="xl:text-4xl sm:text-3xl text-2xl font-semibold leading-tight">

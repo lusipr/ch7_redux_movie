@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Navbar, Header, MainContents } from "../components";
+import { Navbar, MainHeader, MainContents } from "../components";
 import axios from 'axios';
 
 const Home = () => {
@@ -22,9 +22,9 @@ const Home = () => {
 
   if(!popularMovie) return <>Loading...</>
   return (
-    <div className='font-inter'>
+    <div className='relative font-inter'>
       <Navbar />
-      <Header popularMovie={popularMovie} />
+      <MainHeader popularMovie={popularMovie} />
       <MainContents popularMovie={popularMovie} />
     </div>
   )

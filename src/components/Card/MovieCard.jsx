@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from "framer-motion";
+import {
+    StarOutlined
+} from '@ant-design/icons';
 
 export const MovieCard = (props) => {
     const data = props.data;
@@ -7,7 +10,8 @@ export const MovieCard = (props) => {
     const image = "https://image.tmdb.org/t/p/original" + data["poster_path"];
 
     return (
-        <motion.div
+        <motion.a
+            href={`/movie/${data['id']}`}
             onHoverStart={e => { setVisible(true) }}
             onHoverEnd={e => { setVisible(false) }}
             className='relative flex items-end h-[500px] overflow-hidden'
@@ -32,9 +36,13 @@ export const MovieCard = (props) => {
                             <h1 className='text-white text-lg'>{
                                 data["title"] ? data["title"] : data["name"]
                             }</h1>
+                            <div className='flex gap-x-2'>
+                            <StarOutlined style={{fontSize:20, color:'#e69b00'}}/>
+                            <p className='text-yellow-500'>{Number(data['vote_average']).toFixed(1)} / 10</p>
+                            </div>
                         </motion.div> : <></>
                 }
             </AnimatePresence>
-        </motion.div>
+        </motion.a>
     )
 }

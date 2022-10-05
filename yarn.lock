@@ -2795,6 +2795,11 @@ autoprefixer@^10.4.11, autoprefixer@^10.4.12:
     picocolors "^1.0.0"
     postcss-value-parser "^4.2.0"
 
+average-rating@^2.0.3:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/average-rating/-/average-rating-2.0.3.tgz#6ed845327802b37a576464d2039a46f085ebe887"
+  integrity sha512-tQ77b7WshHMJp2PHRXOG0Uefrlc2xg41rbRTT1ZD0PczINk5nZQLOjlnepBwyhnTlBmEsRWclhDn7gpeWCm+4A==
+
 axe-core@^4.4.3:
   version "4.4.3"
   resolved "https://registry.yarnpkg.com/axe-core/-/axe-core-4.4.3.tgz#11c74d23d5013c0fa5d183796729bc3482bd2f6f"
