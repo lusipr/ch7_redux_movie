@@ -8,6 +8,7 @@ import Home from "./pages/Home";
 import reportWebVitals from './reportWebVitals';
 import { Details } from './pages/Details';
 import Search from './pages/Search';
+import { Genre } from './pages/Genre';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -17,6 +18,7 @@ root.render(
         <Route path="/" element={<Home />} />
         <Route path="/movie/:id" element={<Details />} />
         <Route path="/search/:id" element={<Search />} />
+        <Route path="/genre/:id" element={<Genre />} />
       </Routes>
     </BrowserRouter>
   </React.StrictMode>

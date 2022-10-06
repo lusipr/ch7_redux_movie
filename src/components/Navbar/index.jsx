@@ -18,13 +18,13 @@ const Navbar = () => {
                     </a>
                 </div>
                 <div className='w-1/3 flex justify-center'>
-                    <div className='flex border-2 border-red-600 rounded-full py-1 px-2 w-full justify-between items-center'>
+                    <div className='flex border-2 border-white rounded-full py-1 px-2 w-full justify-between items-center'>
                         <input onKeyDown={(events) => {
                             if (events.key === 'Enter') {
                                 navigate(`/search/${events.target.value}`)
                             }
-                        }} className='text-white placeholder:text-white bg-transparent flex-1 focus:outline-none' placeholder='Search Movie' />
-                        <SearchOutlined />
+                        }} className='text-white placeholder:text-white bg-transparent flex-1 focus:outline-none' placeholder='What do you want to watch ?' />
+                        <SearchOutlined style={{ fontSize: 15, color: '#FFFFFF' }} />
                     </div>
                 </div>
                 <div className='flex-1 h-full'>
