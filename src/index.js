@@ -9,6 +9,7 @@ import reportWebVitals from './reportWebVitals';
 import { Details } from './pages/Details';
 import Search from './pages/Search';
 import { Genre } from './pages/Genre';
+import { Movies } from './pages/Movies';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -19,6 +20,7 @@ root.render(
         <Route path="/movie/:id" element={<Details />} />
         <Route path="/search/:id" element={<Search />} />
         <Route path="/genre/:id" element={<Genre />} />
+        <Route path="/movie" element={<Movies />} />
       </Routes>
     </BrowserRouter>
   </React.StrictMode>

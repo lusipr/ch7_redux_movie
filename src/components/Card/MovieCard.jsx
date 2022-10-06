@@ -37,9 +37,10 @@ export const MovieCard = (props) => {
                                 data["title"] ? data["title"] : data["name"]
                             }</h1>
                             <div className='flex gap-x-2'>
-                            <StarOutlined style={{fontSize:20, color:'#e69b00'}}/>
-                            <p className='text-yellow-500'>{Number(data['vote_average']).toFixed(1)} / 10</p>
+                                <StarOutlined style={{ fontSize: 20, color: '#e69b00' }} />
+                                <p className='text-yellow-500'>{Number(data['vote_average']).toFixed(1)} / 10</p>
                             </div>
+                            <p className='text-white'>{data['release_date']}</p>
                         </motion.div> : <></>
                 }
             </AnimatePresence>

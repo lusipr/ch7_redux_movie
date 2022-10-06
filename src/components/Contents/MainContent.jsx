@@ -17,9 +17,9 @@ export const MainContents = (props) => {
           <h2 className="xl:text-4xl sm:text-3xl text-2xl font-semibold leading-tight">
             Popular Movie
           </h2>
-          <button className="xl:text-lg text-base flex items-center text-red-700 gap-2">
+          <a type='button' href='/movie' className="xl:text-lg text-base flex items-center text-red-700 gap-2">
             See All Movie <ArrowRightOutlined />
-          </button>
+          </a>
         </div>
         <div className="mt-6">
           <Swiper slidesPerView={4} spaceBetween={20}>
@@ -36,9 +36,9 @@ export const MainContents = (props) => {
           <h2 className="xl:text-4xl sm:text-3xl text-2xl font-semibold leading-tight">
             Browse by Category
           </h2>
-          <button className="xl:text-lg text-base flex items-center text-red-700 gap-2">
+          <a type='button' href='/movie' className="xl:text-lg text-base flex items-center text-red-700 gap-2">
             See All Movie <ArrowRightOutlined />
-          </button>
+          </a>
         </div>
         <div>
           <Category category={props.category} />
