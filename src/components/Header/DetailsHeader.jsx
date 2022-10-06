@@ -6,6 +6,7 @@ import {
 export const DetailsHeader = (props) => {
     const imageurl = 'https://image.tmdb.org/t/p/original';
     const { movie } = props;
+    const title = movie["title"] ? movie["title"] : ["name"]
 
     return (
         <div className='h-full'>
@@ -23,7 +24,7 @@ export const DetailsHeader = (props) => {
                         <StarOutlined style={{ fontSize: 20, color: '#e69b00' }} />
                         <p className='text-white'>{Number(movie['vote_average']).toFixed(1)} / 10</p>
                     </div>
-                    <a href={!movie['video'] ? '#' : movie['video']} className='flex justify-center w-fit items-center px-8 py-3 h-full bg-red-600 rounded-full text-white font-bold gap-x-2'><PlayCircleOutlined /> WATCH TRAILER</a>
+                    <a href={!movie['video'] ? `https://www.youtube.com/results?search_query=${title}` : movie['video']} className='hover:text-white flex justify-center w-fit items-center px-8 py-3 h-full bg-red-600 rounded-full text-white font-bold gap-x-2'><PlayCircleOutlined /> WATCH TRAILER</a>
                 </div>
             </div>
         </div>
