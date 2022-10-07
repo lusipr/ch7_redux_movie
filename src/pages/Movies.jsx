@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from "axios";
-import { Navbar, MovieCard } from '../components';
+import { Navbar, MovieCard, Footers } from '../components';
 import { Row, Col } from 'antd';
 
 export const Movies = () => {
@@ -72,6 +72,7 @@ export const Movies = () => {
                         </div>
                     </div>
                 </div>
+                <Footers />
             </div>
         </>
     )

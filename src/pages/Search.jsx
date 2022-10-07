@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Navbar, MovieCard } from "../components";
+import { Navbar, MovieCard, Footers } from "../components";
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import { Row, Col } from 'antd';
@@ -55,6 +55,7 @@ const Search = () => {
           </div>
         </div>
       </div>
+      <Footers />
     </div>
   )
 }

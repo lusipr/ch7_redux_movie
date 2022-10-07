@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom';
-import { Navbar, DetailsHeader } from "../components";
+import { Navbar, DetailsHeader, Footers } from "../components";
 import axios from 'axios';
 
 export const Details = () => {
@@ -27,6 +27,7 @@ export const Details = () => {
         <div className='font-inter'>
             <Navbar />
             <DetailsHeader movie={movie} />
+            <Footers />
         </div>
     )
 }

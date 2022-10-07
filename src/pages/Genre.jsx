@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from "axios";
-import { Navbar, MovieCard } from '../components';
+import { Navbar, MovieCard, Footers } from '../components';
 import { Category } from '../components/Tooltip';
 import { useParams } from 'react-router-dom';
 import { Row, Col } from 'antd';
@@ -92,6 +92,7 @@ export const Genre = () => {
                         </div>
                     </div>
                 </div>
+                <Footers />
             </div>
         </>
     )

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Navbar, MainHeader, MainContents } from "../components";
+import { Navbar, MainHeader, MainContents, Footers } from "../components";
 import axios from 'axios';
 
 const Home = () => {
@@ -39,6 +39,7 @@ const Home = () => {
       <Navbar />
       <MainHeader popularMovie={popularMovie} />
       <MainContents popularMovie={popularMovie} category={category} />
+      <Footers />
     </div>
   )
 }
