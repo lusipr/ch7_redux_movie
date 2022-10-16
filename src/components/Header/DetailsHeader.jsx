@@ -27,6 +27,7 @@ export const DetailsHeader = (props) => {
                     <a href={!movie['video'] ? `https://www.youtube.com/results?search_query=${title}` : movie['video']} className='hover:text-white flex justify-center w-fit items-center px-8 py-3 h-full bg-red-600 rounded-full text-white font-bold gap-x-2'><PlayCircleOutlined /> WATCH TRAILER</a>
                 </div>
             </div>
+            
         </div>
     )
 }
