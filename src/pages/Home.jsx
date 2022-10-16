@@ -8,14 +8,24 @@ const Home = () => {
   const categoryurl = 'https://api.themoviedb.org/3/genre/movie/list';
   const [category, setCategory] = useState(undefined);
   const [isAuth, setIsAuth] = useState(false);
+  const [authData, setAuthData] = useState(undefined);
 
   // handle auth
   useEffect(() => {
-    const local = localStorage.getItem('auth_token')
+    const local = localStorage.getItem('auth')
     if(!local) {
       setIsAuth(false)
     } else {
-      setIsAuth(true)
+      const user = JSON.parse(local)
+      const urlAuth = `https://notflixtv.herokuapp.com/api/v1/users/${user.id}`
+      axios.get(urlAuth).then((res) => {
+        setIsAuth(true)
+        setAuthData(res.data)
+        
+      }).catch((error) => {
+        console.log(error)
+        setIsAuth(false)
+      })
     }
   })
 
@@ -44,10 +54,12 @@ const Home = () => {
     }
   }, [popularMovie, category])
 
+  if(!authData && isAuth) return <>Loading...</>
+
   if (!popularMovie || !category) return <>Loading...</>
   return (
     <div className='relative font-inter'>
-      <Navbar isAuth={isAuth} />
+      <Navbar isAuth={isAuth} authData={authData} />
       <MainHeader popularMovie={popularMovie} />
       <MainContents popularMovie={popularMovie} category={category} />
       <Footers />
