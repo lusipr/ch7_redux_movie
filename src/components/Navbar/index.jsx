@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import {
     SearchOutlined, MailOutlined, EyeInvisibleOutlined, EyeOutlined, UserOutlined, UploadOutlined
 } from '@ant-design/icons';
@@ -7,8 +7,15 @@ import { Modal } from 'antd';
 import axios from 'axios';
 import { Menu } from '@headlessui/react';
 import { useForceUpdate } from 'framer-motion';
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 
 const Navbar = (props) => {
+    function checkEmail(email) {
+        return email.match(
+            /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+        );
+    };
+
     const navigate = useNavigate()
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -28,7 +35,6 @@ const Navbar = (props) => {
     const [password2, setPassword2] = useState('password');
 
 
-    // auth login
     const [loginEmail, setLoginEmail] = useState(undefined);
     const [loginPassword, setLoginPassword] = useState(undefined);
     const [isAuth, setIsAuth] = useState(props.isAuth);
@@ -90,16 +96,16 @@ const Navbar = (props) => {
     // update
     const update = () => {
         const data = new FormData()
-        data.append('image', file)
+        const idUser = localStorage.getItem('auth')
+        const token = JSON.parse(idUser).token
+        data.append('image', (file), { type: 'image/tiff' })
         data.append('first_name', editFirstName)
         data.append('last_name', editLastName)
-        data.append('email', editEmail)
+        console.log(data.append('email', 'editEmail'))
         const updateUrl = 'https://notflixtv.herokuapp.com/api/v1/users';
-        axios({
-            method: 'PUT',
-            url: updateUrl,
+        axios.put(updateUrl, {
             data: data,
-            headers: { "Content-Type": "multipart/form-data", "Authorization":`Bearer ${authData.data.token}` }, 
+            headers: { 'Content-Type': `multipart/form-data; boundary=${data}`, Authorization: `Bearer ${token}` },
         }).then((res) => {
             setAuthData(res.data)
             localStorage.setItem('auth', JSON.stringify({ id: res.data.data._id, token: res.data.data.token }))
@@ -111,10 +117,42 @@ const Navbar = (props) => {
     }
 
     // delete
+    const deleteUsers = () => {
+        const idUser = localStorage.getItem('auth')
+        const token = JSON.parse(idUser).token
+        const deleteUrl = `https://notflixtv.herokuapp.com/api/v1/users/me`
+
+        axios.delete(deleteUrl, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }).then((res) => {
+            if (res.data.status) {
+                setIsAuth(false)
+                setIsModalEditOpen(false)
+                localStorage.removeItem('auth')
+            }
+        }).catch((error) => {
+            console.log(error)
+        })
+    }
 
     const showModal = () => {
         setIsModalOpen(true);
     };
+
+    const [preview, setPreview] = useState(false)
+
+    useEffect(() => {
+        if (!file) {
+            setPreview(false)
+            return
+        }
+
+        const url = URL.createObjectURL(file)
+        setPreview(url)
+        return () => URL.revokeObjectURL(url)
+    }, [file])
 
     useEffect(() => {
         if (props.authData) {
@@ -180,27 +218,43 @@ const Navbar = (props) => {
             </header>
 
             {/* Login */}
-            <Modal title="Log In to Your Account" open={isModalOpen} footer={null} onCancel={() => setIsModalOpen(!isModalOpen)} >
-                <div className='flex justify-between items-center w-full px-4 py-2 border border-gray-300 rounded-full mt-6 focus-within:border-red-600 hover:border-red-600 duration-300'>
-                    <input onChange={(event) => {
-                        setLoginEmail(event.target.value)
-                    }} className='flex-1 focus:outline-none' type="text" placeholder='Email Address' />
-                    <MailOutlined />
-                </div>
-                <div className='flex justify-between items-center w-full px-4 py-2 border border-gray-300 rounded-full mt-6 focus-within:border-red-600 hover:border-red-600 duration-300'>
-                    <input onChange={(event) => {
-                        setLoginPassword(event.target.value)
-                    }} className='flex-1 focus:outline-none' type={password} placeholder='Password' />
-                    <button onClick={() => { password === 'password' ? setPassword('text') : setPassword('password') }}>
-                        {
-                            password === 'password' ? <EyeInvisibleOutlined /> : <EyeOutlined />
-                        }
-                    </button>
-                </div>
-                <button onClick={() => {
-                    login()
-                }} className='flex justify-center items-center px-8 py-2 mt-6 h-full bg-red-600 rounded-full text-white'>Login</button>
-            </Modal>
+            <GoogleOAuthProvider clientId="709774975189-uuqlsauh74522qlp6bv3rea985ce16np.apps.googleusercontent.com">
+                <Modal title="Log In to Your Account" open={isModalOpen} footer={null} onCancel={() => setIsModalOpen(!isModalOpen)} >
+                    <div className='w-full'>
+                        <Input
+                            icon={<MailOutlined />}
+                            placeholder={'Email Address'}
+                            alert={'Email Salah'}
+                            callback={(value) => { setLoginEmail(value) }}
+                        ></Input>
+                    </div>
+                    <div className='flex justify-between items-center w-full px-4 py-2 border border-gray-300 rounded-full mt-6 focus-within:border-red-600 hover:border-red-600 duration-300'>
+                        <input onChange={(event) => {
+                            setLoginPassword(event.target.value)
+                        }} className='flex-1 focus:outline-none' type={password} placeholder='Password' />
+                        <button onClick={() => { password === 'password' ? setPassword('text') : setPassword('password') }}>
+                            {
+                                password === 'password' ? <EyeInvisibleOutlined /> : <EyeOutlined />
+                            }
+                        </button>
+                    </div>
+                    <button onClick={() => {
+                        login()
+                    }} className='flex justify-center items-center px-8 py-2 mt-6 h-full bg-red-600 rounded-full text-white'>Login</button>
+                    <GoogleLogin
+                        onSuccess={credentialResponse => {
+                            console.log(credentialResponse)
+                            setAuthData(credentialResponse)
+                            localStorage.setItem('auth', JSON.stringify({ id: credentialResponse.clientId, token: credentialResponse.credential }))
+                            setIsAuth(true)
+                            setIsModalOpen(false)
+                        }}
+                        onError={() => {
+                            console.log('Login Failed');
+                        }}
+                    />
+                </Modal>
+            </GoogleOAuthProvider>
 
             {/* Register */}
             <Modal title="Create Account" open={isModalRegisterOpen} footer={null} onCancel={() => setIsModalRegisterOpen(!isModalRegisterOpen)}>
@@ -219,7 +273,7 @@ const Navbar = (props) => {
                 <div className='flex justify-between items-center w-full px-4 py-2 border border-gray-300 rounded-full mt-6 focus-within:border-red-600 hover:border-red-600 duration-300'>
                     <input onChange={(event) => {
                         setRegisterEmail(event.target.value)
-                    }} className='flex-1 focus:outline-none' type="text" placeholder='Email Address' />
+                    }} className='flex-1 focus:outline-none' type="email" placeholder='Email Address' />
                     <MailOutlined />
                 </div>
                 <div className='flex justify-between items-center w-full px-4 py-2 border border-gray-300 rounded-full mt-6 focus-within:border-red-600 hover:border-red-600 duration-300'>
@@ -249,10 +303,10 @@ const Navbar = (props) => {
             <Modal title="Edit Profile" open={isModalEditOpen} footer={null} onCancel={() => setIsModalEditOpen(!isModalOpen)} >
                 <div className='flex flex-col justify-center items-center w-full'>
                     <div>
-                        <img className='rounded-full w-36' src={authData ? authData.data.image : '' || ''}></img>
+                        <img className='rounded-full w-36' src={preview}></img>
                     </div>
                     <input onChange={(event) => {
-                        setFile(event.target.value)
+                        setFile(event.target.files[0])
                     }} ref={inputFileRef} type='file' className='hidden'></input>
                     <button onClick={() => { inputFileRef.current.click() }} className='flex justify-center items-center px-4 py-1 mt-6 h-full rounded-full gap-2 border border-black hover:border-red-600 hover:text-red-600 duration-300'><UploadOutlined />Update Profile Picture</button>
                 </div>
@@ -277,9 +331,37 @@ const Navbar = (props) => {
                 <button onClick={() => {
                     update()
                 }} className='flex justify-center items-center px-8 py-2 mt-6 h-full bg-red-600 rounded-full text-white w-full hover:bg-red-500'>Update Profile</button>
-                <button className='flex justify-center items-center px-8 py-2 mt-2 h-full border border-red-600 rounded-full text-red-600 w-full hover:border-red-500'>Delete Account</button>
+                <button onClick={() => {
+                    deleteUsers()
+                }} className='flex justify-center items-center px-8 py-2 mt-2 h-full border border-red-600 rounded-full text-red-600 w-full hover:border-red-500'>Delete Account</button>
             </Modal>
         </>
+    )
+}
+
+const Input = (props) => {
+    const [value, setValue] = useState(undefined);
+    const [isValid, setIsValid] = useState(false);
+
+
+    useEffect(() => {
+        if (props.callback) {
+            if (props.validate) setIsValid(props.validate(value));
+
+            props.callback(value)
+        }
+    }, [value])
+
+    return (
+        <div className='block'>
+            <div className='flex justify-between items-center w-full px-4 py-2 border border-gray-300 rounded-full mt-6 focus-within:border-red-600 hover:border-red-600 duration-300'>
+                <input onChange={(event) => setValue(event.target.value)} className='flex-1 focus:outline-none' type="text" placeholder={props.placeholder} />
+                {props.icon}
+            </div>
+            {
+                !isValid && props.validate ? <span className='mt-2'>{props.alert}</span> : <></>
+            }
+        </div>
     )
 }
 

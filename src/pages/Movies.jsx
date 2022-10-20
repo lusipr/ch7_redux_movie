@@ -3,10 +3,32 @@ import axios from "axios";
 import { Navbar, MovieCard, Footers } from '../components';
 import { Row, Col } from 'antd';
 
+
 export const Movies = () => {
     const url = 'https://api.themoviedb.org/3/discover/movie';
     const [allMovies, setAllMovies] = useState();
     const [aktifPage, setAktifPage] = useState(1);
+    const [isAuth, setIsAuth] = useState(false);
+    const [authData, setAuthData] = useState(undefined);
+
+    // handle auth
+    useEffect(() => {
+        const local = localStorage.getItem('auth')
+        if (!local) {
+            setIsAuth(false)
+        } else {
+            const user = JSON.parse(local)
+            const urlAuth = `https://notflixtv.herokuapp.com/api/v1/users/${user.id}`
+            axios.get(urlAuth).then((res) => {
+                setIsAuth(true)
+                setAuthData(res.data)
+
+            }).catch((error) => {
+                console.log(error)
+                setIsAuth(false)
+            })
+        }
+    })
 
 
     const getAllMovies = (page) => {
@@ -33,7 +55,7 @@ export const Movies = () => {
     return (
         <>
             <div className='w-screen min-h-screen overflow-x-hidden'>
-                <Navbar />
+                <Navbar isAuth={isAuth} authData={authData} />
                 <div className='flex items-end justify-center min-h-[50vh]' style={{ backgroundImage: `url(${'https://images.unsplash.com/photo-1574267432553-4b4628081c31?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1631&q=80'})` }}>
                     <div className='container block pb-10'>
                         <h1 className='text-white text-6xl font-bold'>All Movies</h1>
