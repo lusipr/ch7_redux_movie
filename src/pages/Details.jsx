@@ -6,28 +6,7 @@ import axios from 'axios';
 export const Details = () => {
     const { id } = useParams()
     const url = `https://api.themoviedb.org/3/movie/${id}`
-    const [movie, setMovie] = useState(undefined);
-    const [isAuth, setIsAuth] = useState(false);
-    const [authData, setAuthData] = useState(undefined);
-
-    // handle auth
-    useEffect(() => {
-        const local = localStorage.getItem('auth')
-        if (!local) {
-            setIsAuth(false)
-        } else {
-            const user = JSON.parse(local)
-            const urlAuth = `https://notflixtv.herokuapp.com/api/v1/users/${user.id}`
-            axios.get(urlAuth).then((res) => {
-                setIsAuth(true)
-                setAuthData(res.data)
-
-            }).catch((error) => {
-                console.log(error)
-                setIsAuth(false)
-            })
-        }
-    })
+    const [movie, setMovie] = useState(undefined)
 
     useEffect(() => {
         if (!movie) {
@@ -46,7 +25,7 @@ export const Details = () => {
     if (!movie) return <>Loading...</>
     return (
         <div className='font-inter'>
-            <Navbar isAuth={isAuth} authData={authData} />
+            <Navbar />
             <DetailsHeader movie={movie} />
             <Footers />
         </div>

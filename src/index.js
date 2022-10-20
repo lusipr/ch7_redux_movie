@@ -10,19 +10,25 @@ import { Details } from './pages/Details';
 import Search from './pages/Search';
 import { Genre } from './pages/Genre';
 import { Movies } from './pages/Movies';
+import { ParentProvider } from './utils/context';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/movie/:id" element={<Details />} />
-        <Route path="/search/:id" element={<Search />} />
-        <Route path="/genre/:id" element={<Genre />} />
-        <Route path="/movie" element={<Movies />} />
-      </Routes>
-    </BrowserRouter>
+    <ParentProvider>
+      <GoogleOAuthProvider clientId="709774975189-uuqlsauh74522qlp6bv3rea985ce16np.apps.googleusercontent.com">
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/movie/:id" element={<Details />} />
+            <Route path="/search/:id" element={<Search />} />
+            <Route path="/genre/:id" element={<Genre />} />
+            <Route path="/movie" element={<Movies />} />
+          </Routes>
+        </BrowserRouter>
+      </GoogleOAuthProvider>
+    </ParentProvider>
   </React.StrictMode>
 );
 

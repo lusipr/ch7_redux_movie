@@ -7,7 +7,8 @@ import { Modal } from 'antd';
 import axios from 'axios';
 import { Menu } from '@headlessui/react';
 import { useForceUpdate } from 'framer-motion';
-import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
+import { GoogleLogin, googleLogout } from '@react-oauth/google';
+import { ActionType, useParentContext } from '../../utils/context'
 
 const Navbar = (props) => {
     function checkEmail(email) {
@@ -37,8 +38,10 @@ const Navbar = (props) => {
 
     const [loginEmail, setLoginEmail] = useState(undefined);
     const [loginPassword, setLoginPassword] = useState(undefined);
-    const [isAuth, setIsAuth] = useState(props.isAuth);
-    const [authData, setAuthData] = useState(props.authData);
+
+    // provider
+    const [state, dispatch] = useParentContext();
+    // login
     const url = 'https://notflixtv.herokuapp.com/api/v1/users/login';
     const login = () => {
         console.log(loginEmail);
@@ -49,9 +52,10 @@ const Navbar = (props) => {
         })
             .then((res) => {
                 if (res.data.status) {
-                    setAuthData(res.data)
+                    dispatch({ type: ActionType.AuthStatus, payload: true })
+                    dispatch({ type: ActionType.AuthData, payload: res.data })
+                    dispatch({ type: ActionType.AuthToken, payload: res.data.data.token })
                     localStorage.setItem('auth', JSON.stringify({ id: res.data.data._id, token: res.data.data.token }))
-                    setIsAuth(true)
                     setIsModalOpen(false);
                 }
             })
@@ -77,9 +81,9 @@ const Navbar = (props) => {
             password_confirmation: registerPasswordConfirm
         }).then((res) => {
             if (res.data.status) {
-                setAuthData(res.data)
+                dispatch({ type: ActionType.AuthStatus, payload: true })
+                dispatch({ type: ActionType.AuthData, payload: res.data })
                 localStorage.setItem('auth', JSON.stringify({ id: res.data.data._id, token: res.data.data.token }))
-                setIsAuth(true)
                 setIsModalRegisterOpen(false)
             }
         }).catch((error) => {
@@ -89,8 +93,12 @@ const Navbar = (props) => {
 
 
     const logOut = () => {
+        if (state.authType === 'google') {
+            googleLogout()
+            dispatch({ type: ActionType.AuthType, payload: undefined })
+        }
+        dispatch({ type: ActionType.AuthStatus, payload: false })
         localStorage.removeItem('auth')
-        setIsAuth(false)
     }
 
     // update
@@ -107,9 +115,9 @@ const Navbar = (props) => {
             data: data,
             headers: { 'Content-Type': `multipart/form-data; boundary=${data}`, Authorization: `Bearer ${token}` },
         }).then((res) => {
-            setAuthData(res.data)
+            dispatch({ type: ActionType.AuthStatus, payload: true })
+            dispatch({ type: ActionType.AuthData, payload: res.data })
             localStorage.setItem('auth', JSON.stringify({ id: res.data.data._id, token: res.data.data.token }))
-            setIsAuth(true)
             setIsModalEditOpen(false)
         }).catch((error) => {
             console.log(error)
@@ -128,7 +136,7 @@ const Navbar = (props) => {
             }
         }).then((res) => {
             if (res.data.status) {
-                setIsAuth(false)
+                dispatch({ type: ActionType.AuthStatus, payload: false })
                 setIsModalEditOpen(false)
                 localStorage.removeItem('auth')
             }
@@ -154,20 +162,6 @@ const Navbar = (props) => {
         return () => URL.revokeObjectURL(url)
     }, [file])
 
-    useEffect(() => {
-        if (props.authData) {
-            const urlAuth = `https://notflixtv.herokuapp.com/api/v1/users/${props.authData.data._id}`
-            axios.get(urlAuth).then((res) => {
-                setIsAuth(true)
-                setAuthData(res.data)
-
-            }).catch((error) => {
-                console.log(error)
-                setIsAuth(false)
-            })
-        }
-    }, [props.authData])
-
     return (
         <>
             <header className='flex flex-row justify-center py-4 absolute z-50 w-full'>
@@ -190,17 +184,31 @@ const Navbar = (props) => {
                         </div>
                     </div>
                     <div className='flex justify-end flex-1 h-full'>
-                        {isAuth ? <>
+                        {state.authStatus ? <>
                             <Menu as={'div'} className={'relative w-fit'}>
                                 <Menu.Button className={'flex justify-center items-center gap-x-2 text-white'}>
-                                    {authData.data.image !== null ? <img src={authData.data.image} className='rounded-full w-10'></img> : <div>
-                                        {authData.data.first_name.charAt(0).toUpperCase()}</div>}
-                                    <span className='text-lg'>{authData.data.first_name} {authData.data.last_name}</span>
+                                    {
+                                        state.authType === 'google' ? <>
+                                            <span className='text-lg'>Google User</span>
+                                        </> : <>
+                                            {
+                                                state.authData.data.image !== null ? <img src={state.authData.data.image} className='rounded-full w-10'></img> : <div>
+                                                    {state.authData.data.first_name.charAt(0).toUpperCase()}</div>
+                                            }
+                                            <span className='text-lg'>{state.authData.data.first_name} {state.authData.data.last_name}</span>
+                                        </>
+                                    }
                                 </Menu.Button>
                                 <Menu.Items as={'div'} className='absolute flex flex-col right-0 bg-white mt-4 w-full rounded-sm'>
-                                    <Menu.Item>
-                                        <button onClick={() => setIsModalEditOpen(!isModalEditOpen)} className='text-left bg-transparent hover:bg-gray-200 px-2 py-1 duration-200'>Edit Profile</button>
-                                    </Menu.Item>
+                                    {
+                                        state.authType === 'google' ? <>
+
+                                        </> : <>
+                                            <Menu.Item>
+                                                <button onClick={() => setIsModalEditOpen(!isModalEditOpen)} className='text-left bg-transparent hover:bg-gray-200 px-2 py-1 duration-200'>Edit Profile</button>
+                                            </Menu.Item>
+                                        </>
+                                    }
                                     <Menu.Item>
                                         <button onClick={() => {
                                             logOut()
@@ -218,43 +226,40 @@ const Navbar = (props) => {
             </header>
 
             {/* Login */}
-            <GoogleOAuthProvider clientId="709774975189-uuqlsauh74522qlp6bv3rea985ce16np.apps.googleusercontent.com">
-                <Modal title="Log In to Your Account" open={isModalOpen} footer={null} onCancel={() => setIsModalOpen(!isModalOpen)} >
-                    <div className='w-full'>
-                        <Input
-                            icon={<MailOutlined />}
-                            placeholder={'Email Address'}
-                            alert={'Email Salah'}
-                            callback={(value) => { setLoginEmail(value) }}
-                        ></Input>
-                    </div>
-                    <div className='flex justify-between items-center w-full px-4 py-2 border border-gray-300 rounded-full mt-6 focus-within:border-red-600 hover:border-red-600 duration-300'>
-                        <input onChange={(event) => {
-                            setLoginPassword(event.target.value)
-                        }} className='flex-1 focus:outline-none' type={password} placeholder='Password' />
-                        <button onClick={() => { password === 'password' ? setPassword('text') : setPassword('password') }}>
-                            {
-                                password === 'password' ? <EyeInvisibleOutlined /> : <EyeOutlined />
-                            }
-                        </button>
-                    </div>
-                    <button onClick={() => {
-                        login()
-                    }} className='flex justify-center items-center px-8 py-2 mt-6 h-full bg-red-600 rounded-full text-white'>Login</button>
-                    <GoogleLogin
-                        onSuccess={credentialResponse => {
-                            console.log(credentialResponse)
-                            setAuthData(credentialResponse)
-                            localStorage.setItem('auth', JSON.stringify({ id: credentialResponse.clientId, token: credentialResponse.credential }))
-                            setIsAuth(true)
-                            setIsModalOpen(false)
-                        }}
-                        onError={() => {
-                            console.log('Login Failed');
-                        }}
-                    />
-                </Modal>
-            </GoogleOAuthProvider>
+            <Modal title="Log In to Your Account" open={isModalOpen} footer={null} onCancel={() => setIsModalOpen(!isModalOpen)} >
+                <div className='w-full'>
+                    <Input
+                        icon={<MailOutlined />}
+                        placeholder={'Email Address'}
+                        alert={'Email Salah'}
+                        callback={(value) => { setLoginEmail(value) }}
+                    ></Input>
+                </div>
+                <div className='flex justify-between items-center w-full px-4 py-2 border border-gray-300 rounded-full mt-6 focus-within:border-red-600 hover:border-red-600 duration-300'>
+                    <input onChange={(event) => {
+                        setLoginPassword(event.target.value)
+                    }} className='flex-1 focus:outline-none' type={password} placeholder='Password' />
+                    <button onClick={() => { password === 'password' ? setPassword('text') : setPassword('password') }}>
+                        {
+                            password === 'password' ? <EyeInvisibleOutlined /> : <EyeOutlined />
+                        }
+                    </button>
+                </div>
+                <button onClick={() => {
+                    login()
+                }} className='flex justify-center items-center px-8 py-2 mt-6 h-full bg-red-600 rounded-full text-white'>Login</button>
+                <GoogleLogin
+                    onSuccess={credentialResponse => {
+                        dispatch({ type: ActionType.AuthType, payload: 'google' })
+                        dispatch({ type: ActionType.AuthStatus, payload: true })
+                        localStorage.setItem('auth', JSON.stringify({ id: credentialResponse.clientId, token: credentialResponse.credential }))
+                        setIsModalOpen(false)
+                    }}
+                    onError={() => {
+                        console.log('Login Failed');
+                    }}
+                />
+            </Modal>
 
             {/* Register */}
             <Modal title="Create Account" open={isModalRegisterOpen} footer={null} onCancel={() => setIsModalRegisterOpen(!isModalRegisterOpen)}>
