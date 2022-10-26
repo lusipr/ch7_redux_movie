@@ -8,6 +8,7 @@ export const DetailsHeader = (props) => {
     const { movie } = props;
     const title = movie["title"] ? movie["title"] : ["name"]
 
+    if(!movie.genres) return <></>
     return (
         <div className='h-full'>
             <div

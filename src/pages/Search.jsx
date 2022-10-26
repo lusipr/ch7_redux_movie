@@ -1,28 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import { Navbar, MovieCard, Footers } from "../components";
-import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import { Row, Col } from 'antd';
+import { useDispatch, useSelector } from 'react-redux';
+import { getSearch } from '../feature/models/movies';
 
 const Search = () => {
-  const url = 'https://api.themoviedb.org/3/search/movie';
-  const { id } = useParams();
-  const [movie, setMovie] = useState(undefined);
+  const {search, isLoading, isError} = useSelector((state) => state.movies);
+
+  const dispatch = useDispatch()
+
+  const {id} = useParams()
 
   useEffect(() => {
-    axios.get(url, {
-      params: {
-        api_key: '0c6b8abc212dabe5c621e9c560c5320e',
-        query: id.replace(/ /g, '+')
-      }
-    }).then((res) => {
-      setMovie(res.data);
-    }).catch((error) => {
-      console.log(error)
-    })
-  }, [movie])
+    dispatch(getSearch(id));
+  }, [dispatch])
 
-  if (!movie) return <>Loading...</>
+  if (isLoading) return <>Loading...</>
+  if (isError) return <>Error....</>
+  if(!search.results) return <></>
   return (
     <div className='font-inter'>
       <Navbar />
@@ -48,7 +44,7 @@ const Search = () => {
                 lg: 30
               }}
             >
-              {movie["results"].filter((value, index) => index < 20).map((value) => {
+              {search["results"].filter((value, index) => index < 20).map((value) => {
                 return <Col className='gutter-row' span={6}><MovieCard data={value} /></Col>
               })}
             </Row>

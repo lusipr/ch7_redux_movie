@@ -1,44 +1,26 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { Navbar, MainHeader, MainContents, Footers } from "../components";
-import axios from 'axios';
+import { getCategories, getPopularMovie } from '../feature/models/movies';
 
 const Home = () => {
-  const url = 'https://api.themoviedb.org/3/trending/all/day';
-  const [popularMovie, setPopularMovie] = useState(undefined);
-  const categoryurl = 'https://api.themoviedb.org/3/genre/movie/list';
-  const [category, setCategory] = useState(undefined);
+  const {popularMovie, categories, isLoading, isError} = useSelector((state) => state.movies);
+
+  const dispatch = useDispatch()
+
 
   useEffect(() => {
-    if (!popularMovie) {
-      axios.get(url, {
-        params: {
-          api_key: '0c6b8abc212dabe5c621e9c560c5320e'
-        }
-      }).then((res) => {
-        setPopularMovie(res.data);
-      }).catch((error) => {
-        console.log(error)
-      })
-    }
-    if (!category) {
-      axios.get(categoryurl, {
-        params: {
-          api_key: '0c6b8abc212dabe5c621e9c560c5320e'
-        }
-      }).then((res) => {
-        setCategory(res.data);
-      }).catch((error) => {
-        console.log(error)
-      })
-    }
-  }, [popularMovie, category])
+    dispatch(getPopularMovie());
+    dispatch(getCategories());
+  }, [dispatch])
 
-  if (!popularMovie || !category) return <>Loading...</>
+  if (isLoading) return <>Loading...</>
+  if (isError) return <>Error....</>
   return (
     <div className='relative font-inter'>
       <Navbar />
       <MainHeader popularMovie={popularMovie} />
-      <MainContents popularMovie={popularMovie} category={category} />
+      <MainContents popularMovie={popularMovie} category={categories} />
       <Footers />
     </div>
   )

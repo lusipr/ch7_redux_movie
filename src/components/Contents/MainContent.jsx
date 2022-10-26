@@ -23,10 +23,13 @@ export const MainContents = (props) => {
         </div>
         <div className="mt-6">
           <Swiper slidesPerView={4} spaceBetween={20}>
-            {popularMovie["results"].filter((value, index) => index < 20).map((value) => {
-              return <SwiperSlide><MovieCard data={value} /></SwiperSlide>
+            {
+              !popularMovie.results ? <></> : <>{
+                popularMovie["results"].filter((value, index) => index < 20).map((value) => {
+                  return <SwiperSlide><MovieCard data={value} /></SwiperSlide>
+                })
+              }</>
             }
-            )}
           </Swiper>
         </div>
       </div>
@@ -44,10 +47,15 @@ export const MainContents = (props) => {
           <Category category={props.category} />
           <div className='mt-10'>
             <Swiper slidesPerView={4} spaceBetween={20}>
-              {popularMovie["results"].filter((value, index) => index < 20).map((value) => {
-                return <SwiperSlide><MovieCard data={value} /></SwiperSlide>
+              {
+                !popularMovie.results ? <></> : <>
+                  {
+                    popularMovie["results"].filter((value, index) => index < 20).map((value) => {
+                      return <SwiperSlide><MovieCard data={value} /></SwiperSlide>
+                    })
+                  }
+                </>
               }
-              )}
             </Swiper>
           </div>
         </div>

@@ -1,32 +1,26 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useParams } from 'react-router-dom';
 import { Navbar, DetailsHeader, Footers } from "../components";
-import axios from 'axios';
+import { useDispatch, useSelector } from 'react-redux';
+import { getDetails } from '../feature/models/movies';
 
 export const Details = () => {
-    const { id } = useParams()
-    const url = `https://api.themoviedb.org/3/movie/${id}`
-    const [movie, setMovie] = useState(undefined)
+    const { details, isLoading, isError } = useSelector((state) => state.movies);
 
+    const dispatch = useDispatch()
+
+    const {id} = useParams()
+    console.log(id)
     useEffect(() => {
-        if (!movie) {
-            axios.get(url, {
-                params: {
-                    api_key: '0c6b8abc212dabe5c621e9c560c5320e'
-                }
-            }).then((res) => {
-                setMovie(res.data);
-            }).catch((error) => {
-                console.log(error)
-            })
-        }
-    }, [movie])
+        dispatch(getDetails(id));
+    }, [dispatch])
 
-    if (!movie) return <>Loading...</>
+    if (isLoading) return <>Loading...</>
+    if (isError) return <>Error....</>
     return (
         <div className='font-inter'>
             <Navbar />
-            <DetailsHeader movie={movie} />
+            <DetailsHeader movie={details} />
             <Footers />
         </div>
     )
