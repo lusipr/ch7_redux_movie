@@ -56,7 +56,7 @@ export const ParentProvider = (props) => {
     useEffect(() => {
         const local = localStorage.getItem('auth')
         if (!local) {
-            dispatch({type: ActionType.AuthStatus, payload: false})
+            // dispatch({type: ActionType.AuthStatus, payload: false})
         } else if (state.authType === 'google') {
             dispatch({type: ActionType.AuthStatus, payload: true})
         } else {

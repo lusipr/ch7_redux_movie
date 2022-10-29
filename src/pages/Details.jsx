@@ -10,7 +10,6 @@ export const Details = () => {
     const dispatch = useDispatch()
 
     const {id} = useParams()
-    console.log(id)
     useEffect(() => {
         dispatch(getDetails(id));
     }, [dispatch])

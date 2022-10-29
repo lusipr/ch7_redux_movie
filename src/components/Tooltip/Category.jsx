@@ -5,7 +5,7 @@ export const Category = (props) => {
     const { category } = props;
 
     return (
-        <Swiper slidesPerView={8} spaceBetween={10}>
+        <Swiper slidesPerView={5} scrollbar={{ draggable: true }} spaceBetween={10}>
             {
                 !category.genres ? <></> : <>
                     {

@@ -2,33 +2,66 @@ import React, { useState, useEffect } from 'react';
 import axios from "axios";
 import { Navbar, MovieCard, Footers } from '../components';
 import { Row, Col } from 'antd';
+import { useDispatch, useSelector } from 'react-redux';
+import { getAllMovies } from '../feature/models/movies';
+import { useParams } from 'react-router-dom';
 
 
 export const Movies = () => {
-    const url = 'https://api.themoviedb.org/3/discover/movie';
-    const [allMovies, setAllMovies] = useState();
+    // const url = 'https://api.themoviedb.org/3/discover/movie';
+    // const [allMovies, setAllMovies] = useState();
+    // const [aktifPage, setAktifPage] = useState(1);
+    // const getAllMovies = (page) => {
+    //     axios.get(url, {
+    //         params: {
+    //             api_key: '0c6b8abc212dabe5c621e9c560c5320e',
+    //             page: page
+    //         }
+    //     }).then((res) => {
+    //         setAllMovies(res.data)
+    //         setAktifPage(page)
+    //     }).catch((error) => {
+    //         console.log(error)
+    //     })
+    // }
+
+    // useEffect(() => {
+    //     if (!allMovies) {
+    //         getAllMovies(1)
+    //     }
+    // })
+
+    const { allMovies, isLoading, isError } = useSelector((state) => state.movies);
+
+    const dispatch = useDispatch()
+
+    const {page} = useParams()
     const [aktifPage, setAktifPage] = useState(1);
-    const getAllMovies = (page) => {
-        axios.get(url, {
-            params: {
-                api_key: '0c6b8abc212dabe5c621e9c560c5320e',
-                page: page
-            }
-        }).then((res) => {
-            setAllMovies(res.data)
-            setAktifPage(page)
-        }).catch((error) => {
-            console.log(error)
-        })
-    }
 
     useEffect(() => {
-        if (!allMovies) {
-            getAllMovies(1)
-        }
-    })
+        dispatch(getAllMovies(aktifPage));
+    }, [dispatch])
 
-    if (!allMovies) return <p>Loading....</p>
+    const handlePrev = () => {
+        const prevPage = aktifPage !== 1 ? (aktifPage - 1) : aktifPage;
+        dispatch(getAllMovies(prevPage));
+        setAktifPage(prevPage);
+    }
+
+    const handleNext = () => {
+        const nextPage = aktifPage !== 5 ? (aktifPage + 1) : aktifPage;
+        dispatch(getAllMovies(nextPage));
+        setAktifPage(nextPage);
+    }
+
+    const handlePageNumber = (index) => {
+    dispatch(getAllMovies(index));
+    setAktifPage(index);
+    }
+
+    if (isLoading) return <>Loading...</>
+    if (isError) return <>Error....</>
+    if (!allMovies.results) return <></>
     return (
         <>
             <div className='w-screen min-h-screen overflow-x-hidden'>
@@ -60,13 +93,13 @@ export const Movies = () => {
                                 })}
                             </Row>
                             <div className='flex gap-x-2 mt-6'>
-                                <button disabled={aktifPage === 1} onClick={() => getAllMovies(aktifPage !== 1 ? aktifPage - 1 : aktifPage)} className='w-10 h-10 border-2 border-gray-500 hover:border-red-600 text-black hover:text-red-600 duration-300'>{'<'}</button>
+                                <button disabled={aktifPage === 1} onClick={handlePrev} className='w-10 h-10 border-2 border-gray-500 hover:border-red-600 text-black hover:text-red-600 duration-300'>{'<'}</button>
                                 {new Array(5).fill().map((value, index) => {
                                     const isActive = index + 1 === aktifPage;
-                                    if (isActive) return <button onClick={() => getAllMovies(index + 1)} className='w-10 h-10 border-2 border-red-600 text-red-600 '>{index + 1}</button>
-                                    return <button onClick={() => getAllMovies(index + 1)} className='w-10 h-10 border-2 border-gray-500 hover:border-red-600 text-black hover:text-red-600 duration-300'>{index + 1}</button>
+                                    if (isActive) return <button onClick={() => handlePageNumber(index + 1)} className='w-10 h-10 border-2 border-red-600 text-red-600 '>{index + 1}</button>
+                                    return <button onClick={() => handlePageNumber(index + 1)} className='w-10 h-10 border-2 border-gray-500 hover:border-red-600 text-black hover:text-red-600 duration-300'>{index + 1}</button>
                                 })}
-                                <button disabled={aktifPage === 5} onClick={() => getAllMovies(aktifPage !== 5 ? aktifPage + 1 : aktifPage)} className='w-10 h-10 border-2 border-gray-500 hover:border-red-600 text-black hover:text-red-600 duration-300'>{'>'}</button>
+                                <button disabled={aktifPage === 5} onClick={handleNext} className='w-10 h-10 border-2 border-gray-500 hover:border-red-600 text-black hover:text-red-600 duration-300'>{'>'}</button>
                             </div>
                         </div>
                     </div>

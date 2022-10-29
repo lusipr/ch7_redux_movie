@@ -9,6 +9,8 @@ import { Menu } from '@headlessui/react';
 import { useForceUpdate } from 'framer-motion';
 import { GoogleLogin, googleLogout } from '@react-oauth/google';
 import { ActionType, useParentContext } from '../../utils/context'
+import { useDispatch, useSelector } from 'react-redux';
+import { getLogin } from '../../feature/models/auth'
 
 const Navbar = (props) => {
     function checkEmail(email) {
@@ -28,7 +30,7 @@ const Navbar = (props) => {
     const [file, setFile] = useState(undefined);
     const [editFirstName, setEditFirstName] = useState(undefined);
     const [editLastName, setEditLastName] = useState(undefined);
-    const [editEmail, setEditEmail] = useState(undefined);
+    const [editEmail, setEditEmail] = useState(undefined); 
 
     // password click
     const [password, setPassword] = useState('password');
@@ -40,29 +42,44 @@ const Navbar = (props) => {
     const [loginPassword, setLoginPassword] = useState(undefined);
 
     // provider
-    const [state, dispatch] = useParentContext();
+    const [state, dispatchs] = useParentContext();
     // login
-    const url = 'https://notflixtv.herokuapp.com/api/v1/users/login';
+    // const url = 'https://notflixtv.herokuapp.com/api/v1/users/login';
+    // const login = () => {
+    //     console.log(loginEmail);
+    //     console.log(loginPassword)
+    //     axios.post(url, {
+    //         email: loginEmail,
+    //         password: loginPassword,
+    //     })
+    //         .then((res) => {
+    //             if (res.data.status) {
+    //                 dispatch({ type: ActionType.AuthStatus, payload: true })
+    //                 dispatch({ type: ActionType.AuthData, payload: res.data })
+    //                 dispatch({ type: ActionType.AuthToken, payload: res.data.data.token })
+    //                 localStorage.setItem('auth', JSON.stringify({ id: res.data.data._id, token: res.data.data.token }))
+    //                 setIsModalOpen(false);
+    //             }
+    //         })
+    //         .catch((error) => {
+    //             console.log(error)
+    //         })
+    // }
+    const { isLoading, isError } = useSelector((state) => state.auth);
+    const dispatch = useDispatch()
+
+    const auth = localStorage.getItem("auth");
+
+    useEffect(() => {
+        if(auth){
+            setIsModalOpen(false);
+        }
+    },[auth])
+
     const login = () => {
-        console.log(loginEmail);
-        console.log(loginPassword)
-        axios.post(url, {
-            email: loginEmail,
-            password: loginPassword,
-        })
-            .then((res) => {
-                if (res.data.status) {
-                    dispatch({ type: ActionType.AuthStatus, payload: true })
-                    dispatch({ type: ActionType.AuthData, payload: res.data })
-                    dispatch({ type: ActionType.AuthToken, payload: res.data.data.token })
-                    localStorage.setItem('auth', JSON.stringify({ id: res.data.data._id, token: res.data.data.token }))
-                    setIsModalOpen(false);
-                }
-            })
-            .catch((error) => {
-                console.log(error)
-            })
+        dispatch(getLogin({loginEmail: "email@email.com", loginPassword: "password"}));
     }
+
 
     // auth register
     const [registerFirstName, setRegisterFirstName] = useState(undefined);

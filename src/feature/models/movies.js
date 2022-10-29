@@ -9,6 +9,9 @@ const initialState = {
     categories: [],
     details: [],
     search: [],
+    allMovies: [],
+    genre: {},
+    category: {},
 }
 
 export const getPopularMovie = createAsyncThunk(
@@ -43,6 +46,24 @@ export const getCategories = createAsyncThunk(
     }
 )
 
+export const getAllMovies = createAsyncThunk(
+    'movies/allMovies',
+    async (page) => {
+        console.log(page)
+        const results = await axios.get(
+            `${apiConfig.baseUrl}/discover/movie`,
+            {
+                params: {
+                    api_key: apiConfig.apiKey,
+                    page: page,
+                }
+            }
+        )
+            console.log(results)
+        return await results.data;
+    }
+)
+
 export const getDetails = createAsyncThunk(
     'movies/details',
     async (id) => {
@@ -72,6 +93,40 @@ export const getSearch = createAsyncThunk(
             }
         )
 
+        return await results.data;
+    }
+)
+
+export const getGenre = createAsyncThunk(
+    'movies/genre',
+    async (body) => {
+        
+        const results = await axios.get(
+            `${apiConfig.baseUrl}/discover/movie`,
+            {
+                params: {
+                    api_key: apiConfig.apiKey,
+                    with_genres: body.id,
+                    page: body.page,
+                }
+            }
+        )
+        console.log("movie-fetch-genre",results.data)
+        return await results.data;
+    }
+)
+
+export const getCategory = createAsyncThunk(
+    'movies/category',
+    async () => {
+        const results = await axios.get(
+            `${apiConfig.baseUrl}/genre/movie/list`,
+            {
+                params: {
+                    api_key: apiConfig.apiKey
+                }
+            }
+        )
         return await results.data;
     }
 )
@@ -122,6 +177,39 @@ export const moviesSlice = createSlice({
             state.isLoading = false;
         },
         [getSearch.rejected]: (state) => {
+            state.isLoading = false;
+            state.isError = true;
+        },
+        [getAllMovies.pending]: (state) => {
+            state.isLoading = true
+        },
+        [getAllMovies.fulfilled]: (state, { payload }) => {
+            state.allMovies = payload;
+            state.isLoading = false;
+        },
+        [getAllMovies.rejected]: (state) => {
+            state.isLoading = false;
+            state.isError = true;
+        },
+        [getGenre.pending]: (state) => {
+            state.isLoading = true
+        },
+        [getGenre.fulfilled]: (state, { payload }) => {
+            state.genre = payload;
+            state.isLoading = false;
+        },
+        [getGenre.rejected]: (state) => {
+            state.isLoading = false;
+            state.isError = true;
+        },
+        [getCategory.pending]: (state) => {
+            state.isLoading = true
+        },
+        [getCategory.fulfilled]: (state, { payload }) => {
+            state.category = payload;
+            state.isLoading = false;
+        },
+        [getCategory.rejected]: (state) => {
             state.isLoading = false;
             state.isError = true;
         },
