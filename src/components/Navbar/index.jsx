@@ -10,7 +10,8 @@ import { useForceUpdate } from 'framer-motion';
 import { GoogleLogin, googleLogout } from '@react-oauth/google';
 import { ActionType, useParentContext } from '../../utils/context'
 import { useDispatch, useSelector } from 'react-redux';
-import { getLogin } from '../../feature/models/auth'
+import { getLogin } from '../../feature/models/auth';
+import { getRegister } from '../../feature/models/authRegister';
 
 const Navbar = (props) => {
     function checkEmail(email) {
@@ -44,28 +45,7 @@ const Navbar = (props) => {
     // provider
     const [state, dispatchs] = useParentContext();
     // login
-    // const url = 'https://notflixtv.herokuapp.com/api/v1/users/login';
-    // const login = () => {
-    //     console.log(loginEmail);
-    //     console.log(loginPassword)
-    //     axios.post(url, {
-    //         email: loginEmail,
-    //         password: loginPassword,
-    //     })
-    //         .then((res) => {
-    //             if (res.data.status) {
-    //                 dispatch({ type: ActionType.AuthStatus, payload: true })
-    //                 dispatch({ type: ActionType.AuthData, payload: res.data })
-    //                 dispatch({ type: ActionType.AuthToken, payload: res.data.data.token })
-    //                 localStorage.setItem('auth', JSON.stringify({ id: res.data.data._id, token: res.data.data.token }))
-    //                 setIsModalOpen(false);
-    //             }
-    //         })
-    //         .catch((error) => {
-    //             console.log(error)
-    //         })
-    // }
-    const { isLoading, isError } = useSelector((state) => state.auth);
+    const { login } = useSelector((state) => state.auth);
     const dispatch = useDispatch()
 
     const auth = localStorage.getItem("auth");
@@ -76,10 +56,12 @@ const Navbar = (props) => {
         }
     },[auth])
 
-    const login = () => {
-        dispatch(getLogin({loginEmail: "email@email.com", loginPassword: "password"}));
+    const SignIn = () => {
+        dispatch(getLogin({
+            loginEmail: loginEmail, 
+            loginPassword: loginPassword,
+        }));
     }
-
 
     // auth register
     const [registerFirstName, setRegisterFirstName] = useState(undefined);
@@ -89,25 +71,15 @@ const Navbar = (props) => {
     const [registerPasswordConfirm, setRegisterPasswordConfirm] = useState(undefined);
 
     const signUp = () => {
-        const registerUrl = 'https://notflixtv.herokuapp.com/api/v1/users';
-        axios.post(registerUrl, {
+        dispatch(getRegister({
             first_name: registerFirstName,
             last_name: registerLastName,
             email: registerEmail,
             password: registerPassword,
             password_confirmation: registerPasswordConfirm
-        }).then((res) => {
-            if (res.data.status) {
-                dispatch({ type: ActionType.AuthStatus, payload: true })
-                dispatch({ type: ActionType.AuthData, payload: res.data })
-                localStorage.setItem('auth', JSON.stringify({ id: res.data.data._id, token: res.data.data.token }))
-                setIsModalRegisterOpen(false)
-            }
-        }).catch((error) => {
-            console.log(error)
-        })
+        }))
+        setIsModalRegisterOpen(false)
     }
-
 
     const logOut = () => {
         if (state.authType === 'google') {
@@ -263,7 +235,7 @@ const Navbar = (props) => {
                     </button>
                 </div>
                 <button onClick={() => {
-                    login()
+                    SignIn()
                 }} className='flex justify-center items-center px-8 py-2 mt-6 h-full bg-red-600 rounded-full text-white'>Login</button>
                 <GoogleLogin
                     onSuccess={credentialResponse => {

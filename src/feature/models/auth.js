@@ -17,35 +17,34 @@ const initialState = {
 export const getLogin = createAsyncThunk(
     "auth/login", 
     async (body) => {
+        // const results = { data: {
+        //     data: {
+        //         _id: "123d",
+        //         token: "token;"
+        //     },
+        // }}
 
-        const results = { data: {
-            data: {
-                _id: "123d",
-                token: "token;"
-            },
-        }}
-
-        // const results = await axios.post(
-        //     `${authConfig.baseUrl}/login`,
-        //     {
-        //         params: {
-        //             email: body.loginEmail,
-        //             password: body.loginPassword,
-        //         }
-        //     }
-        // )
-
-        const user = {
-            data: {
-                data: {
-                    token: "token2"
+        const results = await axios.post(
+            `${authConfig.baseUrl}/login`,
+            {
+                params: {
+                    email: body.loginEmail,
+                    password: body.loginPassword,
                 }
             }
-        }
+        )
 
-        // const user = await axios.get(
-        //             `${authConfig.baseUrl}/${results.data.data._id}`
-        //         );
+        // const user = {
+        //     data: {
+        //         data: {
+        //             token: "token2"
+        //         }
+        //     }
+        // }
+
+        const user = await axios.get(
+                    `${authConfig.baseUrl}/${results.data.data._id}`
+                );
 
 
         localStorage.setItem('auth', JSON.stringify({ id: results.data.data._id, token: results.data.data.token }))

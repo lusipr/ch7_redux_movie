@@ -8,45 +8,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getGenre, getCategory } from '../feature/models/movies';
 
 export const Genre = () => {
-    // const url = 'https://api.themoviedb.org/3/discover/movie';
-    // const categoryurl = 'https://api.themoviedb.org/3/genre/movie/list';
-    // const [category, setCategory] = useState(undefined);
-    // const { id } = useParams();
-    // const [genre, setGenre] = useState();
-    // const [aktifPage, setAktifPage] = useState(1);
-
-    // const getGenre = (page) => {
-    //     axios.get(url, {
-    //         params: {
-    //             api_key: '0c6b8abc212dabe5c621e9c560c5320e',
-    //             with_genres: id,
-    //             page: page
-    //         }
-    //     }).then((res) => {
-    //         setGenre(res.data)
-    //         setAktifPage(page)
-    //     }).catch((error) => {
-    //         console.log(error)
-    //     })
-    // }
-
-    // useEffect(() => {
-    //     if (!genre) {
-    //         getGenre(1)
-    //     }
-
-    //     if (!category) {
-    //         axios.get(categoryurl, {
-    //             params: {
-    //                 api_key: '0c6b8abc212dabe5c621e9c560c5320e'
-    //             }
-    //         }).then((res) => {
-    //             setCategory(res.data);
-    //         }).catch((error) => {
-    //             console.log(error)
-    //         })
-    //     }
-    // })
 
     const { genre, category, isLoading, isError } = useSelector((state) => state.movies);
 

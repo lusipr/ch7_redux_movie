@@ -36,7 +36,7 @@ export const getRegister = createAsyncThunk(
     }
 )
 
-export const authRegisterSlice = createSclice(
+export const authRegisterSlice = createSlice(
     {
         name: "authRegister",
         initialState,
