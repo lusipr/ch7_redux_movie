@@ -55,22 +55,23 @@ export const ParentProvider = (props) => {
     // handle auth
     useEffect(() => {
         const local = localStorage.getItem('auth')
-        if (!local) {
-            // dispatch({type: ActionType.AuthStatus, payload: false})
-        } else if (state.authType === 'google') {
-            dispatch({type: ActionType.AuthStatus, payload: true})
-        } else {
-            const user = JSON.parse(local)
-            const urlAuth = `https://notflixtv.herokuapp.com/api/v1/users/${user.id}`
-            axios.get(urlAuth).then((res) => {
+       
+        if(local) {
+            if (state.authType === 'google') {
                 dispatch({type: ActionType.AuthStatus, payload: true})
-                dispatch({type: ActionType.AuthData, payload: res.data})
-                dispatch({type: ActionType.AuthToken, payload: res.data.data.token})
-            }).catch((error) => {
-                console.log(error)
-            })
+            } else {
+                const user = JSON.parse(local)
+                const urlAuth = `https://notflixtv.herokuapp.com/api/v1/users/${user.id}`
+                axios.get(urlAuth).then((res) => {
+                    dispatch({type: ActionType.AuthStatus, payload: true})
+                    dispatch({type: ActionType.AuthData, payload: res.data})
+                    dispatch({type: ActionType.AuthToken, payload: res.data.data.token})
+                }).catch((error) => {
+                    console.log(error)
+                })
+            }
         }
-    })
+    }, [state, dispatch])
 
     return <ParentContext.Provider value={ReducerBag}>{props.children}</ParentContext.Provider>
 }

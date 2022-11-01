@@ -20,13 +20,7 @@ export const getRegister = createAsyncThunk(
         const results = await axios.post(
             `${authConfig.baseUrl}`,
             {
-                params: {
-                    first_name: body.registerFirstName,
-                    last_name: body.registerLastName,
-                    email: body.registerEmail,
-                    password: body.authregisterPassword,
-                    password_confirmation: body.registerPasswordConfirm
-                }
+               ...body
             }
         )
 

@@ -43,9 +43,9 @@ const Navbar = (props) => {
     const [loginPassword, setLoginPassword] = useState(undefined);
 
     // provider
-    const [state, dispatchs] = useParentContext();
+    const [state, parentDispatch] = useParentContext();
     // login
-    const { login } = useSelector((state) => state.auth);
+    const loginSelector = useSelector((state) => state.auth)
     const dispatch = useDispatch()
 
     const auth = localStorage.getItem("auth");
@@ -58,8 +58,8 @@ const Navbar = (props) => {
 
     const SignIn = () => {
         dispatch(getLogin({
-            loginEmail: loginEmail, 
-            loginPassword: loginPassword,
+            email: loginEmail, 
+            password: loginPassword,
         }));
     }
 
@@ -84,9 +84,10 @@ const Navbar = (props) => {
     const logOut = () => {
         if (state.authType === 'google') {
             googleLogout()
-            dispatch({ type: ActionType.AuthType, payload: undefined })
+            parentDispatch({ type: ActionType.AuthType, payload: undefined })
         }
-        dispatch({ type: ActionType.AuthStatus, payload: false })
+
+        parentDispatch({ type: ActionType.AuthStatus, payload: false })
         localStorage.removeItem('auth')
     }
 
@@ -104,8 +105,8 @@ const Navbar = (props) => {
             data: data,
             headers: { 'Content-Type': `multipart/form-data; boundary=${data}`, Authorization: `Bearer ${token}` },
         }).then((res) => {
-            dispatch({ type: ActionType.AuthStatus, payload: true })
-            dispatch({ type: ActionType.AuthData, payload: res.data })
+            parentDispatch({ type: ActionType.AuthStatus, payload: true })
+            parentDispatch({ type: ActionType.AuthData, payload: res.data })
             localStorage.setItem('auth', JSON.stringify({ id: res.data.data._id, token: res.data.data.token }))
             setIsModalEditOpen(false)
         }).catch((error) => {
@@ -125,7 +126,7 @@ const Navbar = (props) => {
             }
         }).then((res) => {
             if (res.data.status) {
-                dispatch({ type: ActionType.AuthStatus, payload: false })
+                parentDispatch({ type: ActionType.AuthStatus, payload: false })
                 setIsModalEditOpen(false)
                 localStorage.removeItem('auth')
             }

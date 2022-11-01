@@ -23,14 +23,11 @@ export const getLogin = createAsyncThunk(
         //         token: "token;"
         //     },
         // }}
-
+        
         const results = await axios.post(
             `${authConfig.baseUrl}/login`,
             {
-                params: {
-                    email: body.loginEmail,
-                    password: body.loginPassword,
-                }
+                ...body
             }
         )
 
