@@ -12,6 +12,8 @@ import { ActionType, useParentContext } from '../../utils/context'
 import { useDispatch, useSelector } from 'react-redux';
 import { getLogin } from '../../feature/models/auth';
 import { getRegister } from '../../feature/models/authRegister';
+import { auth, logInWithEmailAndPassword, signInWithGoogle, registerWithEmailAndPassword, } from "../../utils/firebase";
+import { useAuthState } from "react-firebase-hooks/auth";
 
 const Navbar = (props) => {
     function checkEmail(email) {
@@ -31,55 +33,79 @@ const Navbar = (props) => {
     const [file, setFile] = useState(undefined);
     const [editFirstName, setEditFirstName] = useState(undefined);
     const [editLastName, setEditLastName] = useState(undefined);
-    const [editEmail, setEditEmail] = useState(undefined); 
+    const [editEmail, setEditEmail] = useState(undefined);
 
     // password click
-    const [password, setPassword] = useState('password');
+    // const [password, setPassword] = useState('password');
     const [password1, setPassword1] = useState('password');
     const [password2, setPassword2] = useState('password');
 
 
-    const [loginEmail, setLoginEmail] = useState(undefined);
-    const [loginPassword, setLoginPassword] = useState(undefined);
+    // const [loginEmail, setLoginEmail] = useState(undefined);
+    // const [loginPassword, setLoginPassword] = useState(undefined);
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [user, loading, error] = useAuthState(auth);
+    useEffect(() => {
+        if (loading) {
+          // maybe trigger a loading screen
+          return;
+        }
+        if (user) {
+            return;
+        };
+      }, [user, loading]);
+
+    //   register
+    const [name, setName] = useState("");
+    const register = () => {
+        if (!name) alert("Please enter name");
+        registerWithEmailAndPassword(name, email, password);
+      };
+      useEffect(() => {
+        if (loading) return;
+        if (user) {
+            return;
+        }
+      }, [user, loading]);
 
     // provider
     const [state, parentDispatch] = useParentContext();
     // login
     const loginSelector = useSelector((state) => state.auth)
-    const dispatch = useDispatch()
+    // const dispatch = useDispatch()
+    // const auth = localStorage.getItem("auth");
 
-    const auth = localStorage.getItem("auth");
+    // useEffect(() => {
+    //     if (auth) {
+    //         setIsModalOpen(false);
+    //     }
+    // }, [auth])
 
-    useEffect(() => {
-        if(auth){
-            setIsModalOpen(false);
-        }
-    },[auth])
-
-    const SignIn = () => {
-        dispatch(getLogin({
-            email: loginEmail, 
-            password: loginPassword,
-        }));
-    }
+    // const SignIn = () => {
+    //     dispatch(getLogin({
+    //         email: loginEmail, 
+    //         password: loginPassword,
+    //     }));
+    // }
 
     // auth register
-    const [registerFirstName, setRegisterFirstName] = useState(undefined);
-    const [registerLastName, setRegisterLastName] = useState(undefined);
-    const [registerEmail, setRegisterEmail] = useState(undefined);
-    const [registerPassword, setRegisterPassword] = useState(undefined);
-    const [registerPasswordConfirm, setRegisterPasswordConfirm] = useState(undefined);
+    // const [registerFirstName, setRegisterFirstName] = useState(undefined);
+    // const [registerLastName, setRegisterLastName] = useState(undefined);
+    // const [registerEmail, setRegisterEmail] = useState(undefined);
+    // const [registerPassword, setRegisterPassword] = useState(undefined);
+    // const [registerPasswordConfirm, setRegisterPasswordConfirm] = useState(undefined);
 
-    const signUp = () => {
-        dispatch(getRegister({
-            first_name: registerFirstName,
-            last_name: registerLastName,
-            email: registerEmail,
-            password: registerPassword,
-            password_confirmation: registerPasswordConfirm
-        }))
-        setIsModalRegisterOpen(false)
-    }
+    // const signUp = () => {
+    //     // dispatch(getRegister({
+    //     //     first_name: registerFirstName,
+    //     //     last_name: registerLastName,
+    //     //     email: registerEmail,
+    //     //     password: registerPassword,
+    //     //     password_confirmation: registerPasswordConfirm
+    //     // }))
+    //     setIsModalRegisterOpen(false)
+    // }
 
     const logOut = () => {
         if (state.authType === 'google') {
@@ -222,12 +248,12 @@ const Navbar = (props) => {
                         icon={<MailOutlined />}
                         placeholder={'Email Address'}
                         alert={'Email Salah'}
-                        callback={(value) => { setLoginEmail(value) }}
+                        callback={(value) => { setEmail(value) }}
                     ></Input>
                 </div>
                 <div className='flex justify-between items-center w-full px-4 py-2 border border-gray-300 rounded-full mt-6 focus-within:border-red-600 hover:border-red-600 duration-300'>
                     <input onChange={(event) => {
-                        setLoginPassword(event.target.value)
+                        setPassword(event.target.value)
                     }} className='flex-1 focus:outline-none' type={password} placeholder='Password' />
                     <button onClick={() => { password === 'password' ? setPassword('text') : setPassword('password') }}>
                         {
@@ -235,10 +261,9 @@ const Navbar = (props) => {
                         }
                     </button>
                 </div>
-                <button onClick={() => {
-                    SignIn()
-                }} className='flex justify-center items-center px-8 py-2 mt-6 h-full bg-red-600 rounded-full text-white'>Login</button>
-                <GoogleLogin
+                <button onClick={() => logInWithEmailAndPassword(email, password)} className='flex justify-center items-center px-8 py-2 mt-6 h-full bg-red-600 rounded-full text-white'>Login</button>
+                <button onClick={signInWithGoogle} className='flex justify-center items-center px-8 py-2 mt-6 h-full bg-red-600 rounded-full text-white'>Login With Google</button>
+                {/* <GoogleLogin
                     onSuccess={credentialResponse => {
                         dispatch({ type: ActionType.AuthType, payload: 'google' })
                         dispatch({ type: ActionType.AuthStatus, payload: true })
@@ -248,32 +273,26 @@ const Navbar = (props) => {
                     onError={() => {
                         console.log('Login Failed');
                     }}
-                />
+                /> */}
             </Modal>
 
             {/* Register */}
             <Modal title="Create Account" open={isModalRegisterOpen} footer={null} onCancel={() => setIsModalRegisterOpen(!isModalRegisterOpen)}>
                 <div className='flex justify-between items-center w-full px-4 py-2 border border-gray-300 rounded-full mt-6 focus-within:border-red-600 hover:border-red-600 duration-300'>
                     <input onChange={(event) => {
-                        setRegisterFirstName(event.target.value)
-                    }} className='flex-1 focus:outline-none' type="text" placeholder='First Name' />
+                        setName(event.target.value)
+                    }} className='flex-1 focus:outline-none' type="text" placeholder='Name' />
                     <UserOutlined />
                 </div>
                 <div className='flex justify-between items-center w-full px-4 py-2 border border-gray-300 rounded-full mt-6 focus-within:border-red-600 hover:border-red-600 duration-300'>
                     <input onChange={(event) => {
-                        setRegisterLastName(event.target.value)
-                    }} className='flex-1 focus:outline-none' type="text" placeholder='Last name' />
-                    <UserOutlined />
-                </div>
-                <div className='flex justify-between items-center w-full px-4 py-2 border border-gray-300 rounded-full mt-6 focus-within:border-red-600 hover:border-red-600 duration-300'>
-                    <input onChange={(event) => {
-                        setRegisterEmail(event.target.value)
+                        setEmail(event.target.value)
                     }} className='flex-1 focus:outline-none' type="email" placeholder='Email Address' />
                     <MailOutlined />
                 </div>
                 <div className='flex justify-between items-center w-full px-4 py-2 border border-gray-300 rounded-full mt-6 focus-within:border-red-600 hover:border-red-600 duration-300'>
                     <input onChange={(event) => {
-                        setRegisterPassword(event.target.value)
+                        setPassword(event.target.value)
                     }} className='flex-1 focus:outline-none' type={password1} placeholder='Password' />
                     <button onClick={() => { password1 === 'password' ? setPassword1('text') : setPassword1('password') }}>
                         {
@@ -281,17 +300,7 @@ const Navbar = (props) => {
                         }
                     </button>
                 </div>
-                <div className='flex justify-between items-center w-full px-4 py-2 border border-gray-300 rounded-full mt-6 focus-within:border-red-600 hover:border-red-600 duration-300'>
-                    <input onChange={(event) => {
-                        setRegisterPasswordConfirm(event.target.value)
-                    }} className='flex-1 focus:outline-none' type={password2} placeholder='Password Confirmation' />
-                    <button onClick={() => { password2 === 'password' ? setPassword2('text') : setPassword2('password') }}>
-                        {
-                            password2 === 'password' ? <EyeInvisibleOutlined /> : <EyeOutlined />
-                        }
-                    </button>
-                </div>
-                <button onClick={signUp} className='flex justify-center items-center px-8 py-2 mt-6 h-full bg-red-600 rounded-full text-white'>Register</button>
+                <button onClick={register} className='flex justify-center items-center px-8 py-2 mt-6 h-full bg-red-600 rounded-full text-white'>Register</button>
             </Modal>
 
             {/* edit profile */}
