@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
+import { query, collection, getDocs, where } from "firebase/firestore";
 import {
     SearchOutlined, MailOutlined, EyeInvisibleOutlined, EyeOutlined, UserOutlined, UploadOutlined
 } from '@ant-design/icons';
@@ -12,8 +13,9 @@ import { ActionType, useParentContext } from '../../utils/context'
 import { useDispatch, useSelector } from 'react-redux';
 import { getLogin } from '../../feature/models/auth';
 import { getRegister } from '../../feature/models/authRegister';
-import { auth, logInWithEmailAndPassword, signInWithGoogle, registerWithEmailAndPassword, } from "../../utils/firebase";
+import { auth, db, logInWithEmailAndPassword, signInWithGoogle, registerWithEmailAndPassword, logout } from "../../utils/firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
+
 
 const Navbar = (props) => {
     function checkEmail(email) {
@@ -35,6 +37,11 @@ const Navbar = (props) => {
     const [editLastName, setEditLastName] = useState(undefined);
     const [editEmail, setEditEmail] = useState(undefined);
 
+    // dataRegis ={
+    //     firstName: "",
+    //     lastName: "",
+    // }
+
     // password click
     // const [password, setPassword] = useState('password');
     const [password1, setPassword1] = useState('password');
@@ -43,17 +50,38 @@ const Navbar = (props) => {
 
     // const [loginEmail, setLoginEmail] = useState(undefined);
     // const [loginPassword, setLoginPassword] = useState(undefined);
-    const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [email, setEmail] = useState("");
+    const [dataLogin, setDataLogin] = useState({
+        email: "",
+        password: ""
+    });
     const [user, loading, error] = useAuthState(auth);
+    const [authUser, setAuthUser] = useState({})
+
+    const fetchUserName = async () => {
+        try {
+          const q = query(collection(db, "users"), where("uid", "==", user?.uid));
+          const doc = await getDocs(q);
+          const data = doc.docs[0].data();
+          console.log("Data Doc", user);
+          localStorage.setItem("user", JSON.stringify(data));
+          setAuthUser(data);
+        } catch (err) {
+          console.error(err);
+          alert("An error occured while fetching user data");
+        }
+      };
+
     useEffect(() => {
         if (loading) {
           // maybe trigger a loading screen
           return;
         }
-        if (user) {
-            return;
+        if (!user) {
+            return navigate("/");
         };
+        fetchUserName();
       }, [user, loading]);
 
     //   register
@@ -62,12 +90,6 @@ const Navbar = (props) => {
         if (!name) alert("Please enter name");
         registerWithEmailAndPassword(name, email, password);
       };
-      useEffect(() => {
-        if (loading) return;
-        if (user) {
-            return;
-        }
-      }, [user, loading]);
 
     // provider
     const [state, parentDispatch] = useParentContext();
@@ -115,6 +137,11 @@ const Navbar = (props) => {
 
         parentDispatch({ type: ActionType.AuthStatus, payload: false })
         localStorage.removeItem('auth')
+    }
+
+    const login = () => {
+        logInWithEmailAndPassword(dataLogin.email, dataLogin.password);
+        navigate('/movie');
     }
 
     // update
@@ -200,7 +227,14 @@ const Navbar = (props) => {
                         </div>
                     </div>
                     <div className='flex justify-end flex-1 h-full'>
-                        {state.authStatus ? <>
+                        {user ? 
+                            <nav className='flex flex-row gap-x-6 justify-end h-full'>
+                                <button onClick={logout} className='flex justify-center items-center px-8 h-full border-2 border-red-600 rounded-full text-red-600'>Logout</button>
+                            </nav> : <nav className='flex flex-row gap-x-6 justify-end h-full'>
+                                <button onClick={showModal} className='flex justify-center items-center px-8 h-full border-2 border-red-600 rounded-full text-red-600'>Login</button>
+                                <button onClick={() => setIsModalRegisterOpen(!isModalRegisterOpen)} className='flex justify-center items-center px-8 h-full bg-red-600 rounded-full text-white'>Register</button>
+                            </nav>}
+                        {/* {user ? <>
                             <Menu as={'div'} className={'relative w-fit'}>
                                 <Menu.Button className={'flex justify-center items-center gap-x-2 text-white'}>
                                     {
@@ -236,7 +270,7 @@ const Navbar = (props) => {
                                 <button onClick={showModal} className='flex justify-center items-center px-8 h-full border-2 border-red-600 rounded-full text-red-600'>Login</button>
                                 <button onClick={() => setIsModalRegisterOpen(!isModalRegisterOpen)} className='flex justify-center items-center px-8 h-full bg-red-600 rounded-full text-white'>Register</button>
                             </nav>
-                        </>}
+                        </>} */}
                     </div>
                 </div>
             </header>
@@ -248,12 +282,12 @@ const Navbar = (props) => {
                         icon={<MailOutlined />}
                         placeholder={'Email Address'}
                         alert={'Email Salah'}
-                        callback={(value) => { setEmail(value) }}
+                        callback={(value) => { setDataLogin({...dataLogin, email: value}) }}
                     ></Input>
                 </div>
                 <div className='flex justify-between items-center w-full px-4 py-2 border border-gray-300 rounded-full mt-6 focus-within:border-red-600 hover:border-red-600 duration-300'>
                     <input onChange={(event) => {
-                        setPassword(event.target.value)
+                        setDataLogin({...dataLogin, password: event.target.value});
                     }} className='flex-1 focus:outline-none' type={password} placeholder='Password' />
                     <button onClick={() => { password === 'password' ? setPassword('text') : setPassword('password') }}>
                         {
@@ -261,7 +295,7 @@ const Navbar = (props) => {
                         }
                     </button>
                 </div>
-                <button onClick={() => logInWithEmailAndPassword(email, password)} className='flex justify-center items-center px-8 py-2 mt-6 h-full bg-red-600 rounded-full text-white'>Login</button>
+                <button onClick={login} className='flex justify-center items-center px-8 py-2 mt-6 h-full bg-red-600 rounded-full text-white'>Login</button>
                 <button onClick={signInWithGoogle} className='flex justify-center items-center px-8 py-2 mt-6 h-full bg-red-600 rounded-full text-white'>Login With Google</button>
                 {/* <GoogleLogin
                     onSuccess={credentialResponse => {
