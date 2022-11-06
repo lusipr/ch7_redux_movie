@@ -18,23 +18,25 @@ import {
   addDoc,
 } from "firebase/firestore";
 const firebaseConfig = {
-    apiKey: "AIzaSyBww93W06hKCYnyqH1d7NeqOAlIiV2fEDk",
-    authDomain: "login-47d21.firebaseapp.com",
-    projectId: "login-47d21",
-    storageBucket: "login-47d21.appspot.com",
-    messagingSenderId: "111429713826",
-    appId: "1:111429713826:web:4eb8ee707691446a497cfb",
-    measurementId: "G-LHT5XPWMSC"
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  databaseURL: process.env.REACT_APP_FIREBASE_DATABASE_URL,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_SENDER_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID,
+  measurementId: process.env.MEASUREMENT_ID,
 };
 // const firebaseConfig = {
-//     apiKey: "AIzaSyAe_AfgOJSLG157ZgEzeFIXgdOSis6SsTE",
-//     authDomain: "login-3abdc.firebaseapp.com",
-//     projectId: "login-3abdc",
-//     storageBucket: "login-3abdc.appspot.com",
-//     messagingSenderId: "975101696557",
-//     appId: "1:975101696557:web:10c750f6ee4a4d915276a4",
-//     measurementId: "G-CNKC0BL81D"
+//     apiKey: "AIzaSyBww93W06hKCYnyqH1d7NeqOAlIiV2fEDk",
+//     authDomain: "login-47d21.firebaseapp.com",
+//     projectId: "login-47d21",
+//     storageBucket: "login-47d21.appspot.com",
+//     messagingSenderId: "111429713826",
+//     appId: "1:111429713826:web:4eb8ee707691446a497cfb",
+//     measurementId: "G-LHT5XPWMSC"
 // };
+
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const auth = getAuth(app);
